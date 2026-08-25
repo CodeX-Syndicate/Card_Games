@@ -6,7 +6,6 @@ let player = [],
     deck = [];
 
 let nbOfDeck = 4;
-
 let isPlayerOver = false;
 
 let gamerBoard = document.getElementById('gamerBoard'),
@@ -15,7 +14,9 @@ let gamerBoard = document.getElementById('gamerBoard'),
     doubleBtn = document.getElementById('doubleBtn'),
     standBtn = document.getElementById('standBtn'),
     splitBtn = document.getElementById('splitBtn'),
-    popUp = document.getElementById('popUp');
+    popUp = document.getElementById('popUp'),
+    playGame = document.getElementById('playGame'),
+    resetGame = document.getElementById('resetGame');
 
 let playerScoreHTML = document.getElementById('playerScore'),
     dealerScoreHTML = document.getElementById('dealerScore');
@@ -24,6 +25,7 @@ let gamerCards = document.getElementById('gamerCards'),
     dealerCards = document.getElementById('dealerCards');
 
 function initializeDeck() {
+    deck = [];
     for (let deckCount = 0; deckCount < nbOfDeck; deckCount++) {    
         for (const value of valueOfCard) {
             for (const type of typeOfCard) {
@@ -45,87 +47,85 @@ function getCard() {
         console.log('Le deck est vide. Réinitialisation du jeu.');
         initializeDeck();
         shuffleDeck();
-        console.log('Deck initialisé et mélangé !');
     }
     return deck.pop();
 }
 
 function checkScore(cards) {
     let score = 0;
+    let aces = 0;
 
     for (let i = 0; i < cards.length; i++) {
-        if (cards[i][0] === 'A' && score <= 10) {
+        const val = cards[i][0];
+        if (val === 'A') {
+            aces++;
             score += 11;
-        } else if (cards[i][0] === 'A' && score > 10) {
-            score += 1; 
-        } else if (cards[i][0] === 'J' || cards[i][0] === 'Q' || cards[i][0] === 'K') {
+        } else if (val === 'J' || val === 'Q' || val === 'K') {
             score += 10;
         } else {
-            score += parseInt(cards[i][0]);
+            score += parseInt(val, 10);
         }
     }
+
+    while (score > 21 && aces > 0) {
+        score -= 10;
+        aces--;
+    }
+
     return score;
 }
 
 function launchGame() {
     popUp.style.display = 'none';
     playGame.style.display = 'none';
+    
     gamerBoard.style.visibility = 'visible';
     gamerBoard.style.opacity = '1';
-    gamerBoard.style.display = 'block';
-    dealerBoard.style.display = 'block';
+    gamerBoard.style.display = 'flex';
+    dealerBoard.style.display = 'flex';
+    
     player = [];
     dealer = [];
+    gamerCards.innerHTML = '';
+    dealerCards.innerHTML = '';
 
-    if (deck.length === 0) {
+    enableButton(hitBtn);
+    enableButton(doubleBtn);
+    enableButton(standBtn);
+    enableButton(splitBtn);
+
+    if (deck.length < 10) {
         initializeDeck();
         shuffleDeck();
-        console.log('Deck initialisé et mélangé !');
     }
 
-    console.log('Taille du deck : ', deck.length)
-
     // Initialisation des cartes
-
     let playerCard1 = getCard();
     let playerCard2 = getCard();
     let dealerCard = getCard();
 
-    // Initialisation du joueur
-
-    if (playerCard1[0] != playerCard2[0]) {
+    if (playerCard1[0] !== playerCard2[0]) {
         disableButton(splitBtn);
     }
 
     player.push(playerCard1, playerCard2);
-    
     let playerScore = checkScore(player);
 
-    setTimeout(() => {
-        if (playerScore === 21) {
-            isPlayerOver = false;
-            dealerTurn();
-        }
-    }, 2000);
-
-    playerScoreHTML.innerHTML = `Votre score: ${playerScore}`;
+    playerScoreHTML.textContent = `Votre Score : ${playerScore}`;
 
     // Initialisation du dealer
-    
     dealer.push(dealerCard);
-
     let dealerScore = checkScore(dealer);
+    dealerScoreHTML.textContent = `Score du dealer : ${dealerScore}`;
 
-    dealerScoreHTML.innerHTML = `Score du dealer: ${dealerScore}`;
-
-    // Affichage des cartes
-
+    // Affichage des cartes du joueur
     let playerCard1HTML = document.createElement('img');
     printTheCard(playerCard1, playerCard1HTML, gamerCards);
 
     let playerCard2HTML = document.createElement('img');
     printTheCard(playerCard2, playerCard2HTML, gamerCards);
 
+    // Affichage des cartes du dealer
     let dealerCardHTML = document.createElement('img');
     printTheCard(dealerCard, dealerCardHTML, dealerCards);
 
@@ -134,12 +134,12 @@ function launchGame() {
     dealerCardBackHTML.classList.add('reverseCard');
     dealerCards.appendChild(dealerCardBackHTML);
 
-    setTimeout(() => {
-        playerCard1HTML.style.transform = 'rotateY(0) translateY(0)';
-        playerCard2HTML.style.transform = 'rotateY(0) translateY(0)';
-        dealerCardHTML.style.transform = 'rotateY(0) translateY(0)';
-        dealerCardBackHTML.style.transform = 'rotateY(0) translateY(0)';
-    }, 100);
+    if (playerScore === 21) {
+        setTimeout(() => {
+            isPlayerOver = false;
+            dealerTurn();
+        }, 1000);
+    }
 }
 
 function printTheCard(variableName, variableNameHTML, playerDeck) {
@@ -153,14 +153,10 @@ function hit() {
     player.push(playerCard);
     let playerScore = checkScore(player);
     
-    playerScoreHTML.innerHTML = `Votre score: ${playerScore}`;
+    playerScoreHTML.textContent = `Votre Score : ${playerScore}`;
 
     let playerCardHTML = document.createElement('img');
     printTheCard(playerCard, playerCardHTML, gamerCards);
-
-    setTimeout(() => {
-        playerCardHTML.style.transform = 'rotateY(0) translateY(0)';
-    }, 100);
 
     if (playerScore > 21) {
         isPlayerOver = true;
@@ -169,7 +165,7 @@ function hit() {
 }
 
 function double() {
-    //TODO Ajouter ici la logique pour doubler la mise du joueur
+    // Logique pour doubler si nécessaire
 }
 
 function stand() {
@@ -182,24 +178,23 @@ function dealerTurn() {
     disableButton(doubleBtn);
     disableButton(standBtn);
     disableButton(splitBtn);
-    let dealerCard = getCard();
-    dealer.push(dealerCard);
 
-    let dealerCardHTML = dealerCards.lastElementChild;
-    dealerCardHTML.remove();
+    // Remplacer la carte cachée du dealer
+    if (dealerCards.lastElementChild) {
+        dealerCards.lastElementChild.remove();
+    }
 
-    dealerCardHTML = document.createElement('img');
-    printTheCard(dealerCard, dealerCardHTML, dealerCards);
+    let dealerCard2 = getCard();
+    dealer.push(dealerCard2);
 
-    setTimeout(() => {
-        dealerCardHTML.style.transform = 'rotateY(0) translateY(0)';
-    }, 100);
+    let dealerCardHTML = document.createElement('img');
+    printTheCard(dealerCard2, dealerCardHTML, dealerCards);
 
     let dealerScore = checkScore(dealer);
-    dealerScoreHTML.innerHTML = `Score du dealer: ${dealerScore}`;
+    dealerScoreHTML.textContent = `Score du dealer : ${dealerScore}`;
     
     if (isPlayerOver) {
-        printResults('Vous avez perdu...');
+        printResults('Vous avez perdu... 😞');
     } else if (dealerScore >= 17) {
         checkResults();
     } else {
@@ -209,27 +204,30 @@ function dealerTurn() {
                 clearInterval(dealerInterval);
                 checkResults();
             }
-        }, 2000);
+        }, 1200);
     }
 }
 
 function checkResults() {
-    if ((checkScore(dealer) > 21) || (checkScore(dealer) < checkScore(player))) {
+    const dScore = checkScore(dealer);
+    const pScore = checkScore(player);
+
+    if (dScore > 21 || dScore < pScore) {
         printResults('Vous avez gagné ! 🎉');
-    } else if (checkScore(dealer) > checkScore(player)) {
-        printResults('Vous avez perdu...');
-    } else if (checkScore(dealer) === checkScore(player)) {
-        printResults('Egalité !');
+    } else if (dScore > pScore) {
+        printResults('Vous avez perdu... 😞');
+    } else {
+        printResults('Égalité ! 🤝');
     }
 }
 
-//! NOUVELLE FONCTION
 function printResults(txtContent) {
     popUp.style.display = 'block';
-    resetGame.style.display = 'inline';
-    resetGame.style.marginTop = '10px';
+    resetGame.style.display = 'inline-block';
     const h2Element = popUp.querySelector("h2");
-    h2Element.textContent = txtContent;
+    if (h2Element) {
+        h2Element.textContent = txtContent;
+    }
 }
 
 function whileDealerCards() {
@@ -240,34 +238,25 @@ function whileDealerCards() {
     let dealerCardHTML = document.createElement('img');
     printTheCard(dealerCard, dealerCardHTML, dealerCards);
 
-    setTimeout(() => {
-        dealerCardHTML.style.transform = 'rotateY(0) translateY(0)';
-    }, 100);
-
-    dealerScoreHTML.innerHTML = `Score du dealer: ${dealerScore}`;
+    dealerScoreHTML.textContent = `Score du dealer : ${dealerScore}`;
 }
 
-
 function split() {
-    //TODO Ajoutez ici la logique pour gérer le split
+    // Logique de séparation
 }
 
 const disableButton = (button) => {
+    if (!button) return;
     button.disabled = true;
-    button.style.opacity = '0.5';
+    button.style.opacity = '0.4';
 }
 
 const enableButton = (button) => {
+    if (!button) return;
     button.disabled = false;
     button.style.opacity = '1';
 }
 
 function eraseGame() {
-    enableButton(hitBtn);
-    enableButton(doubleBtn);
-    enableButton(standBtn);
-    enableButton(splitBtn);
-    gamerCards.innerHTML = '';
-    dealerCards.innerHTML = '';
     launchGame();
 }

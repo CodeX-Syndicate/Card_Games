@@ -1,36 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <title>Blackjack - Card Games Syndicate</title>
     <link rel="shortcut icon" href="../images/blackjack.png" type="image/png">
-    <title>Blackjack</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <!-- Header -->
+        <header class="header">
+            <a href="../index.html" class="back-link">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/></svg>
+                Accueil
+            </a>
             <h1 class="scrolling-title">Blackjack</h1>
-        </div>        
+            <div class="table-info">Casino Royale</div>
+        </header>        
+
+        <!-- Table Area -->
         <div class="tableBoard" id="tableBoard">
+            <!-- Dealer Board -->
             <div class="dealerBoard" id="dealerBoard">
-                <h1 class="dealerScore" id="dealerScore">Score du dealer: </h1>
+                <div class="score-badge">
+                    <span class="score-icon">🎩</span>
+                    <h2 class="dealerScore" id="dealerScore">Score du dealer : 0</h2>
+                </div>
                 <div class="dealerCards" id="dealerCards"></div>
             </div>
-            <div id="popUp">
-                <h2></h2>
+
+            <!-- Start Game CTA Button -->
+            <button class="playGame" id="playGame" onclick="launchGame()">
+                <span class="play-icon">♠️</span> Lancer la Partie
+            </button>
+
+            <!-- Popup Modal -->
+            <div id="popUp" class="modal">
+                <h2 class="result-title"></h2>
                 <button class="resetGame" id="resetGame" onclick="eraseGame()">Recommencer</button>
             </div>
             
-            <button class="playGame" id="playGame" onclick="launchGame()">Jouer</button>
+            <!-- Gamer Cards Container -->
             <div class="gamerCards" id="gamerCards"></div>
         </div>
+
+        <!-- Player Action Control Board -->
         <div class="gamerBoard" id="gamerBoard">
-            <h1 class="playerScore" id="playerScore">Votre Score: </h1>
-            <button class="hitBtn" id="hitBtn" onclick="hit()">Tirer</button>
-            <button class="doubleBtn" id="doubleBtn" onclick="double()">Doubler</button>
-            <button class="standBtn" id="standBtn" onclick="stand()">Coucher</button>
-            <button class="splitBtn" id="splitBtn" onclick="split()">Séparer</button>
+            <div class="score-badge player-badge">
+                <span class="score-icon">👤</span>
+                <h2 class="playerScore" id="playerScore">Votre Score : 0</h2>
+            </div>
+            <div class="action-buttons">
+                <button class="hitBtn" id="hitBtn" onclick="hit()">Tirer</button>
+                <button class="doubleBtn" id="doubleBtn" onclick="double()">Doubler</button>
+                <button class="standBtn" id="standBtn" onclick="stand()">Coucher</button>
+                <button class="splitBtn" id="splitBtn" onclick="split()">Séparer</button>
+            </div>
         </div>
     </div>
 
