@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Games Syndicate - Arcade de Jeux de Cartes</title>
+    <meta name="description"
+        content="Découvrez une collection de jeux de cartes captivants en ligne : Blackjack, Bataille, Orlog et plus encore. Jouez directement dans votre navigateur.">
+    <meta name="theme-color" content="#0d1117">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="images/blackjack.png" type="image/png">
+
+    <style>
+        :root {
+            --bg-primary: #0a0d14;
+            --bg-card: rgba(22, 27, 38, 0.65);
+            --bg-card-hover: rgba(30, 38, 54, 0.85);
+            --accent-gold: #f59e0b;
+            --accent-gold-glow: rgba(245, 158, 11, 0.35);
+            --accent-emerald: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --border-highlight: rgba(245, 158, 11, 0.4);
+            --radius-xl: 24px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --font-title: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                url('images/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 13, 20, 0.82);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2.5rem 1.5rem;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 100px;
+            color: var(--accent-gold);
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .logo-badge svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        h1 {
+            font-family: var(--font-title);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Main Grid */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .section-title {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border-glass), transparent);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Game Card */
+        .game-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .game-card.playable:hover {
+            transform: translateY(-8px) scale(1.01);
+            border-color: var(--border-highlight);
+            box-shadow:
+                0 20px 40px -15px rgba(0, 0, 0, 0.6),
+                0 0 30px 0 var(--accent-gold-glow);
+            background: var(--bg-card-hover);
+        }
+
+        .card-banner {
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+            background: #111827;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .game-card.playable:hover .card-banner img {
+            transform: scale(1.08);
+        }
+
+        .card-banner-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(22, 27, 38, 0.95) 100%);
+        }
+
+        .badge-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            z-index: 2;
+            backdrop-filter: blur(8px);
+        }
+
+        .status-ready {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .status-upcoming {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent-purple);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .card-content {
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 1rem;
+        }
+
+        .card-header-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .game-title {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .game-desc {
+            color: var(--text-secondary);
+            font-size: 0.925rem;
+            line-height: 1.6;
+            flex: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .btn-play {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #d97706 100%);
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-play svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            transition: transform 0.2s ease;
+        }
+
+        .game-card.playable:hover .btn-play svg {
+            transform: translateX(4px);
+        }
+
+        .btn-disabled {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: not-allowed;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        footer a:hover {
+            color: var(--accent-gold);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .games-grid {
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 1.5rem 1rem;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo-badge">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5 0 1.12-.53 2.12-1.34 2.76.81.64 1.34 1.64 1.34 2.74 0 1.93-1.57 3.5-3.5 3.5S8.5 17.07 8.5 15.14c0-1.1.53-2.1 1.34-2.74-.81-.64-1.34-1.64-1.34-2.76C8.5 7.57 10.07 6 12 6z" />
+                </svg>
+                CodeX Syndicate Presents
+            </div>
+            <h1>Card Games <span>Syndicate</span></h1>
+            <p class="subtitle">Une collection exclusive de jeux de cartes web interactifs, conçus pour offrir une
+                expérience ludique et immersive.</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <h2 class="section-title">Jeux disponibles</h2>
+
+            <div class="games-grid">
+                <!-- Blackjack Card -->
+                <a href="Blackjack/index.html" class="game-card playable">
+                    <div class="card-banner">
+                        <img src="images/blackjack.png" alt="Blackjack Game Preview">
+                        <div class="card-banner-overlay"></div>
+                        <span class="badge-status status-ready">Jouable</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-header-group">
+                            <h3 class="game-title">Blackjack</h3>
+                        </div>
+                        <p class="game-desc">Affrontez le croupier ! Approchez-vous au plus près de 21 points sans
+                            jamais les dépasser dans ce classique indémodable du casino.</p>
+                        <div class="card-footer">
+                            <span class="player-info">
+                                👤 1 Joueur vs Croupier
+                            </span>
+                            <span class="btn-play">
+                                Jouer
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Bataille Card (Prochainement) -->
+                <div class="game-card">
+                    <div class="card-banner">
+                        <img src="images/background.jpg" alt="Bataille Game Preview"
+                            style="filter: grayscale(0.6) brightness(0.5);">
+                        <div class="card-banner-overlay"></div>
+                        <span class="badge-status status-upcoming">En développement</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-header-group">
+                            <h3 class="game-title">Bataille</h3>
+                        </div>
+                        <p class="game-desc">Le célèbre jeu de cartes classique où rapidité et stratégie décident du
+                            vainqueur. Capturez toutes les cartes de votre adversaire !</p>
+                        <div class="card-footer">
+                            <span class="player-info">
+                                ⚔️ 1v1 / vs IA
+                            </span>
+                            <span class="btn-disabled">
+                                Prochainement
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2026 CodeX Syndicate. Hébergé avec ❤️ sur <a href="https://vercel.com" target="_blank"
+                    rel="noopener">Vercel</a>.</p>
+            <p><a href="https://github.com/Codex-Syndicate/Card_Games" target="_blank" rel="noopener">Consulter le dépôt
+                    GitHub</a></p>
+        </footer>
+    </div>
+</body>
+
+</html>
