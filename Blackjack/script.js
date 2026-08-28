@@ -130,7 +130,7 @@ function launchGame() {
     printTheCard(dealerCard, dealerCardHTML, dealerCards);
 
     let dealerCardBackHTML = document.createElement('img');
-    dealerCardBackHTML.src = `../images/cards/cardBack.png`;
+    dealerCardBackHTML.src = `/images/cards/cardBack.png`;
     dealerCardBackHTML.classList.add('reverseCard');
     dealerCards.appendChild(dealerCardBackHTML);
 
@@ -143,7 +143,7 @@ function launchGame() {
 }
 
 function printTheCard(variableName, variableNameHTML, playerDeck) {
-    variableNameHTML.src = `../images/cards/${variableName[1]}/${variableName[0]}${variableName[1]}.png`;
+    variableNameHTML.src = `/images/cards/${variableName[1]}/${variableName[0]}${variableName[1]}.png`;
     variableNameHTML.classList.add('card');
     playerDeck.appendChild(variableNameHTML);
 }
