@@ -455,23 +455,52 @@
                     </div>
                 </a>
 
-                <!-- Bataille Card (Prochainement) -->
-                <div class="game-card">
+                <!-- Bataille Card (Jouable) -->
+                <a href="/Bataille/index.html" class="game-card playable">
                     <div class="card-banner">
                         <img src="images/background.jpg" alt="Bataille Game Preview"
-                            style="filter: grayscale(0.6) brightness(0.5);">
+                            style="filter: hue-rotate(90deg) brightness(0.75);">
                         <div class="card-banner-overlay"></div>
-                        <span class="badge-status status-upcoming">En développement</span>
+                        <span class="badge-status status-ready">Jouable</span>
                     </div>
                     <div class="card-content">
                         <div class="card-header-group">
                             <h3 class="game-title">Bataille</h3>
                         </div>
-                        <p class="game-desc">Le célèbre jeu de cartes classique où rapidité et stratégie décident du
-                            vainqueur. Capturez toutes les cartes de votre adversaire !</p>
+                        <p class="game-desc">Le célèbre jeu de cartes classique où stratégie et chance décident du
+                            vainqueur. Capturez la totalité des 52 cartes de votre adversaire !</p>
                         <div class="card-footer">
                             <span class="player-info">
-                                ⚔️ 1v1 / vs IA
+                                ⚔️ 1 Joueur vs IA
+                            </span>
+                            <span class="btn-play">
+                                Jouer
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Poker Card (Prochainement) -->
+                <div class="game-card">
+                    <div class="card-banner">
+                        <img src="images/background.jpg" alt="Poker Game Preview"
+                            style="filter: hue-rotate(240deg) grayscale(0.4) brightness(0.5);">
+                        <div class="card-banner-overlay"></div>
+                        <span class="badge-status status-upcoming">En développement</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-header-group">
+                            <h3 class="game-title">Poker (Texas Hold'em)</h3>
+                        </div>
+                        <p class="game-desc">Le jeu de cartes stratégique emblématique ! Bluffez, misez et réalisez les
+                            meilleures combinaisons (Quinte, Couleur, Full) pour rafler le tapis.</p>
+                        <div class="card-footer">
+                            <span class="player-info">
+                                🃏 Multi-Joueurs / vs IA
                             </span>
                             <span class="btn-disabled">
                                 Prochainement
