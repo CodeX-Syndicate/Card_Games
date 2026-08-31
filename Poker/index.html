@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Poker Texas Hold'em - Card Games Syndicate</title>
+    <title>Poker Texas Hold'em (Multijoueur WebRTC) - Card Games Syndicate</title>
     <link rel="shortcut icon" href="/images/blackjack.png" type="image/png">
     
     <!-- Google Fonts -->
@@ -14,8 +14,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- PeerJS CDN -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
     <!-- CSS absolu depuis la racine -->
-    <link rel="stylesheet" href="/Poker/style.css?v=1.0">
+    <link rel="stylesheet" href="/Poker/style.css?v=2.0">
 </head>
 <body>
     <div class="container">
@@ -26,30 +29,18 @@
                 Accueil
             </a>
             <h1 class="scrolling-title">Texas Hold'em</h1>
-            <div class="bankroll-badge">
-                <span>💰 Tapis :</span>
-                <span id="bankrollDisplay">$1 000</span>
+            <div class="mode-badge" id="modeBadge">
+                🌐 Multijoueur P2P
             </div>
         </header>        
 
         <!-- Table Area -->
         <div class="tableBoard" id="tableBoard">
-            <!-- Dealer Section -->
-            <div class="poker-section" id="dealerSection" style="display: none;">
-                <div class="info-badge">
-                    <span>🎩 Croupier</span>
-                    <span id="dealerStatusText" style="font-size:0.85rem; color: var(--text-muted); font-weight: normal;">(Mise : $0)</span>
-                </div>
-                <div class="hole-cards" id="dealerCards"></div>
-            </div>
-
-            <!-- Start Game CTA Button -->
-            <button class="playGame" id="playGame" onclick="startNewHand()">
-                <span class="play-icon">🃏</span> Distribution de la Main ($25)
-            </button>
+            <!-- Multi-Seat Players Container -->
+            <div class="seats-container" id="seatsContainer"></div>
 
             <!-- Community Cards Area -->
-            <div class="community-area" id="communityArea" style="display: none;">
+            <div class="community-area" id="communityArea">
                 <div class="pot-badge">
                     <span>🏆 Pot :</span>
                     <span id="potDisplay">$0</span>
@@ -58,41 +49,94 @@
                 <div class="community-cards" id="communityCards"></div>
 
                 <div class="hand-eval-tag" id="handEvalTag">
-                    Votre main : Pré-flop
-                </div>
-            </div>
-
-            <!-- Player Section -->
-            <div class="poker-section" id="playerSection" style="display: none;">
-                <div class="hole-cards" id="playerCards"></div>
-                <div class="info-badge player-badge">
-                    <span>👤 Vos Cartes Privées</span>
-                    <span id="playerBetText" style="font-size:0.85rem; color: var(--gold-hover); font-weight: normal;">(Mise : $0)</span>
+                    Attente des joueurs...
                 </div>
             </div>
 
             <!-- Modal PopUp Result -->
             <div id="popUp" class="modal">
                 <h2 class="result-title" id="resultTitle">Victoire ! 🎉</h2>
-                <p class="result-sub" id="resultSub">Vous avez remporté le pot de $150 avec une Double Paire !</p>
-                <button class="resetGame" id="resetGame" onclick="startNewHand()">Main Suivante</button>
+                <p class="result-sub" id="resultSub">Résultat du coup.</p>
+                <button class="resetGame" id="resetBtn" onclick="onResetClick()">Main Suivante</button>
             </div>
         </div>
 
         <!-- Gamer Control Board -->
-        <div class="gamerBoard" id="gamerBoard" style="display: none;">
+        <div class="gamerBoard" id="gamerBoard">
             <div class="action-row">
-                <button class="btn-poker btn-check" id="checkBtn" onclick="userCheck()">Check (Parler)</button>
-                <button class="btn-poker btn-call" id="callBtn" onclick="userCall()">Suivre ($0)</button>
-                <button class="btn-poker btn-bet" id="bet25Btn" onclick="userBet(25)">Miser $25</button>
-                <button class="btn-poker btn-bet" id="bet50Btn" onclick="userBet(50)">Miser $50</button>
-                <button class="btn-poker btn-bet" id="bet100Btn" onclick="userBet(100)">Miser $100</button>
-                <button class="btn-poker btn-fold" id="foldBtn" onclick="userFold()">Se Couché</button>
+                <button class="btn-poker btn-check" id="checkBtn" onclick="sendAction('CHECK')">Check (Parler)</button>
+                <button class="btn-poker btn-call" id="callBtn" onclick="sendAction('CALL')">Suivre ($0)</button>
+                <button class="btn-poker btn-bet" id="bet25Btn" onclick="sendAction('BET', 25)">Miser $25</button>
+                <button class="btn-poker btn-bet" id="bet50Btn" onclick="sendAction('BET', 50)">Miser $50</button>
+                <button class="btn-poker btn-bet" id="bet100Btn" onclick="sendAction('BET', 100)">Miser $100</button>
+                <button class="btn-poker btn-fold" id="foldBtn" onclick="sendAction('FOLD')">Se Coucher</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOBBY OVERLAY MODAL -->
+    <div class="lobby-overlay" id="lobbyOverlay">
+        <div class="lobby-box">
+            <h2 class="lobby-title">♣️ Salon Poker Texas Hold'em</h2>
+
+            <!-- Step 1: Select Mode -->
+            <div class="mode-buttons" id="lobbyStepMode">
+                <button class="btn-mode" onclick="setupSoloMode()">
+                    👤 Jouer en Solo (vs Croupier IA)
+                </button>
+                <button class="btn-mode" onclick="showMultiplayerStep()">
+                    🌐 Multijoueur en Ligne (PeerJS WebRTC)
+                </button>
+            </div>
+
+            <!-- Step 2: Multiplayer Options -->
+            <div class="room-form" id="lobbyStepMulti" style="display: none;">
+                <div class="form-group">
+                    <label for="playerNameInput">Votre Pseudo :</label>
+                    <input type="text" id="playerNameInput" class="form-input" placeholder="Ex: Alex_Pro" value="Joueur">
+                </div>
+
+                <div class="mode-buttons">
+                    <button class="btn-mode" onclick="createRoom()">
+                        👑 Créer une Table (Hôte)
+                    </button>
+                    <button class="btn-mode" onclick="showJoinRoomForm()">
+                        🔗 Rejoindre une Table
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Room Host Lobby -->
+            <div class="room-form" id="lobbyStepHost" style="display: none;">
+                <label>Code de votre Salon :</label>
+                <div class="room-code-display">
+                    <span class="code-text" id="hostRoomCodeDisplay">-------</span>
+                    <button class="btn-copy" onclick="copyRoomCode()">Copier le Code</button>
+                </div>
+
+                <label>Joueurs connectés :</label>
+                <div class="player-list-box" id="hostPlayerList"></div>
+
+                <button class="btn-mode btn-bet" onclick="hostStartGame()">
+                    🚀 Démarrer la Partie
+                </button>
+            </div>
+
+            <!-- Step 4: Join Room Input -->
+            <div class="room-form" id="lobbyStepJoin" style="display: none;">
+                <div class="form-group">
+                    <label for="joinCodeInput">Code du Salon à rejoindre :</label>
+                    <input type="text" id="joinCodeInput" class="form-input" placeholder="Ex: POKER-8A3F">
+                </div>
+
+                <button class="btn-mode btn-check" onclick="joinRoom()">
+                    Rejoindre la Table
+                </button>
             </div>
         </div>
     </div>
 
     <!-- JS absolu depuis la racine -->
-    <script src="/Poker/script.js?v=1.0"></script>
+    <script src="/Poker/script.js?v=2.0"></script>
 </body>
 </html>
